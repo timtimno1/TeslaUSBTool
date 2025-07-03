@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla USB Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .device-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .device-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .device-item.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .device-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .device-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .device-path {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .device-size {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .config-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .config-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .config-item label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .config-item input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .config-item input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .config-item small {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #7f8c8d;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Tesla USB Tool</h1>
+            <p>Format your USB drive for Tesla Dashcam, Sentry Mode, and more</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="section">
+            <h2>📱 Select USB Device</h2>
+            <div id="device-list" class="device-list">
+                <div class="device-item" style="text-align: center; color: #7f8c8d;">
+                    Click "Refresh Devices" to scan for USB drives
+                </div>
+            </div>
+            <div class="buttons">
+                <button id="refresh-btn" class="btn btn-secondary">🔄 Refresh Devices</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚙️ Tesla Configuration</h2>
+            <div class="config-section">
+                <div class="config-item">
+                    <label>Dashcam Size (GB)</label>
+                    <input type="number" id="dashcam-size" min="32" value="32">
+                    <small>Minimum 32GB required for Tesla</small>
+                </div>
+                <div class="config-item">
+                    <label>Music Size (GB)</label>
+                    <input type="number" id="music-size" min="0" value="16">
+                    <small>Optional partition for music files</small>
+                </div>
+                <div class="config-item">
+                    <label>Lightshow Size (GB)</label>
+                    <input type="number" id="lightshow-size" min="0" value="8">
+                    <small>Optional partition for lightshow files</small>
+                </div>
+                <div class="config-item">
+                    <label>Remaining Space (GB)</label>
+                    <input type="number" id="remaining-space" readonly>
+                    <small>Available space after partitioning</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button id="format-btn" class="btn btn-primary" disabled>🔧 Format for Tesla</button>
+            <button id="custom-btn" class="btn btn-secondary" disabled>📝 Custom Partitions</button>
+        </div>
+
+        <div id="progress" class="progress">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-text">Processing...</div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
